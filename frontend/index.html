@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>DApp Turing - Votação</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/6.7.0/ethers.umd.min.js"></script>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .hidden { display: none; }
+        .panel { border: 1px solid #ccc; padding: 15px; margin-bottom: 20px; border-radius: 5px; }
+        .admin-panel { background-color: #f9eef0; border-color: #d9534f; }
+    </style>
+</head>
+<body>
+
+    <h1>Votação Turing 🪙</h1>
+    <button id="connectBtn">Conectar MetaMask (Hardhat Local)</button>
+    <p id="status">Status: Não conectado</p>
+
+    <!-- Área de Votação (Para todos os registrados) -->
+    <div id="userPanel" class="panel hidden">
+        <h3>Votar em um Projeto</h3>
+        <label>Candidato (Codinome):</label>
+        <select id="voteCodinome">
+            <option value="Alice">Alice</option>
+            <option value="Bob">Bob</option>
+            <option value="Charlie">Charlie</option>
+            <!-- A professora é excluída deste select de propósito -->
+        </select>
+        <br><br>
+        <label>Quantidade de Turings (1 ou 2):</label>
+        <input type="number" id="voteAmount" min="1" max="2" value="1">
+        <br><br>
+        <button id="voteBtn">Enviar Voto</button>
+    </div>
+
+    <!-- Área de Administração (Owner/Professora) -->
+    <div id="adminPanel" class="panel admin-panel hidden">
+        <h3>Painel de Controle (Superusuários)</h3>
+        
+        <button id="btnVotingOn">Ativar Votação (votingOn)</button>
+        <button id="btnVotingOff">Pausar Votação (votingOff)</button>
+        
+        <hr>
+        <h4>Emitir Tokens (issueToken)</h4>
+        <label>Candidato:</label>
+        <select id="issueCodinome">
+            <option value="Alice">Alice</option>
+            <option value="Bob">Bob</option>
+            <option value="Charlie">Charlie</option>
+        </select>
+        <label>Qtd:</label>
+        <input type="number" id="issueAmount" value="5">
+        <button id="issueBtn">Emitir</button>
+    </div>
+
+    <!-- Ranking (Atualizado via Eventos) -->
+    <div class="panel">
+        <h3>Ranking (Em tempo real)</h3>
+        <ul id="rankingList">
+            <li>Carregando...</li>
+        </ul>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
