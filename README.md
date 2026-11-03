@@ -15,7 +15,6 @@ O sistema possui duas interfaces distintas baseadas no endereço da carteira con
 Possuem todas as permissões dos usuários comuns, mais o acesso automático ao **Painel de Superutilizador**, que permite:
 * **Emitir Tokens (Minting Manual):** Capacidade de criar (mintar) novas moedas e enviá-las diretamente para o saldo de um aluno específico (`issueToken`).
 * **Controle da Votação:** Pausar (`votingOff`) ou retomar (`votingOn`) o período de votação a qualquer momento.
-* *Nota:* A professora (Roberta) foi excluída das opções de votação e emissão de tokens, não participando do ranking como competidora.
 
 ---
 
