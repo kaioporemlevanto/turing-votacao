@@ -18,7 +18,7 @@ let provider, signer, contract;
 let currentAccount = "";
 
 // Os codinomes exatos cadastrados no contrato
-const candidatos = ["roberta", "nome1", "nome2", "nome3", "nome4", "nome5"]; 
+const candidatos = ["nome1", "nome2", "nome3", "nome4", "nome5"]; 
 
 async function init() {
     if (window.ethereum) {
@@ -43,8 +43,13 @@ async function init() {
                 signer = await provider.getSigner();
                 contract = new ethers.Contract(contractAddress, contractABI, signer);
                 
+                // 1. Descobre quem é o usuário
+                const identidade = await identificarUsuario(currentAccount);
+                
+                // 2. Atualiza a interface com o NOME e o endereço encurtado
                 const shortAddress = `${currentAccount.substring(0,6)}...${currentAccount.substring(38)}`;
-                document.getElementById('status').innerHTML = `🟢 Conectado: <span class="font-mono font-bold">${shortAddress}</span>`;
+                document.getElementById('status').innerHTML = `🟢 Conectado como <b>${identidade}</b> <span class="text-xs text-gray-400 font-mono">(${shortAddress})</span>`;
+                
                 document.getElementById('connectBtn').classList.add('hidden');
                 document.getElementById('userPanel').classList.remove('hidden');
                 
@@ -52,7 +57,7 @@ async function init() {
                 await updateRanking();
                 setupEventListeners();
                 
-                Swal.fire({ toast: true, position: 'top-end', icon: 'success', title: 'Carteira conectada!', showConfirmButton: false, timer: 2000 });
+                Swal.fire({ toast: true, position: 'top-end', icon: 'success', title: `Bem-vindo, ${identidade}!`, showConfirmButton: false, timer: 3000 });
             } catch (err) {
                 console.error(err);
                 Swal.fire('Erro!', 'A conexão com a carteira falhou.', 'error');
@@ -60,6 +65,27 @@ async function init() {
         };
     } else {
         Swal.fire('MetaMask em falta', 'Por favor, instale a extensão MetaMask.', 'warning');
+    }
+}
+
+async function identificarUsuario(account) {
+    try {
+        const owner = await contract.owner();
+        const professora = await contract.professora();
+
+        if (account.toLowerCase() === owner.toLowerCase()) return "owner (Admin)";
+        if (account.toLowerCase() === professora.toLowerCase()) return "professora (Roberta)";
+
+        // Procura se o endereço pertence a algum aluno da lista
+        for (let codinome of candidatos) {
+            const addr = await contract.users(codinome);
+            if (addr.toLowerCase() === account.toLowerCase()) {
+                return `aluno: ${codinome}`;
+            }
+        }
+        return "Usuário Desconhecido";
+    } catch (e) {
+        return "Erro ao identificar";
     }
 }
 

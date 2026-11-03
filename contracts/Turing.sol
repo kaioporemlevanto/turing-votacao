@@ -27,8 +27,10 @@ contract Turing is ERC20, Ownable {
     constructor(address _professora) ERC20("Turing", "TRG") Ownable(msg.sender) {
         professora = _professora;
         
-        // Inicialização do mapping com a tabela de usuários pré-autorizados
-        _addUser("roberta", 0x502542668aF09fa7aea52174b9965A7799343Df7);
+        // A roberta assume o endereço da professora
+        _addUser("roberta", _professora);
+        
+        // Alunos comuns
         _addUser("nome1", 0x70997970C51812dc3A010C7d01b50e0d17dc79C8);
         _addUser("nome2", 0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC);
         _addUser("nome3", 0x90F79bf6EB2c4f870365E785982E1f101E93b906);
