@@ -2,64 +2,108 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>DApp Turing - Votação</title>
+    <!-- Ethers.js -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/6.7.0/ethers.umd.min.js"></script>
-    <style>
-        body { font-family: Arial, sans-serif; padding: 20px; }
-        .hidden { display: none; }
-        .panel { border: 1px solid #ccc; padding: 15px; margin-bottom: 20px; border-radius: 5px; }
-        .admin-panel { background-color: #f9eef0; border-color: #d9534f; }
-    </style>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
-<body>
+<body class="bg-gray-100 text-gray-800 font-sans min-h-screen p-6">
 
-    <h1>Votação Turing 🪙</h1>
-    <button id="connectBtn">Conectar MetaMask (Hardhat Local)</button>
-    <p id="status">Status: Não conectado</p>
+    <div class="max-w-5xl mx-auto">
+        <!-- Cabeçalho -->
+        <header class="flex justify-between items-center bg-white p-6 rounded-xl shadow-sm mb-6">
+            <div>
+                <h1 class="text-3xl font-bold text-blue-600">Votação Turing 🪙</h1>
+                <p id="status" class="text-sm text-gray-500 mt-1">Status: Não conectado</p>
+            </div>
+            <button id="connectBtn" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg transition-colors">
+                Conectar MetaMask
+            </button>
+        </header>
 
-    <!-- Área de Votação (Para todos os registrados) -->
-    <div id="userPanel" class="panel hidden">
-        <h3>Votar em um Projeto</h3>
-        <label>Candidato (Codinome):</label>
-        <select id="voteCodinome">
-            <option value="Alice">Alice</option>
-            <option value="Bob">Bob</option>
-            <option value="Charlie">Charlie</option>
-            <!-- A professora é excluída deste select de propósito -->
-        </select>
-        <br><br>
-        <label>Quantidade de Turings (1 ou 2):</label>
-        <input type="number" id="voteAmount" min="1" max="2" value="1">
-        <br><br>
-        <button id="voteBtn">Enviar Voto</button>
-    </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            
+            <!-- Coluna Esquerda: Ações -->
+            <div class="space-y-6">
+                <!-- Área de Votação -->
+                <div id="userPanel" class="bg-white p-6 rounded-xl shadow-sm hidden">
+                    <h3 class="text-xl font-bold border-b pb-2 mb-4">Votar num Projeto</h3>
+                    
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Candidato (Codinome):</label>
+                        <select id="voteCodinome" class="w-full border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-blue-500 outline-none">
+                            <option value="roberta">roberta</option>
+                            <option value="nome1">nome1</option>
+                            <option value="nome2">nome2</option>
+                            <option value="nome3">nome3</option>
+                            <option value="nome4">nome4</option>
+                            <option value="nome5">nome5</option>
+                        </select>
+                    </div>
 
-    <!-- Área de Administração (Owner/Professora) -->
-    <div id="adminPanel" class="panel admin-panel hidden">
-        <h3>Painel de Controle (Superusuários)</h3>
-        
-        <button id="btnVotingOn">Ativar Votação (votingOn)</button>
-        <button id="btnVotingOff">Pausar Votação (votingOff)</button>
-        
-        <hr>
-        <h4>Emitir Tokens (issueToken)</h4>
-        <label>Candidato:</label>
-        <select id="issueCodinome">
-            <option value="Alice">Alice</option>
-            <option value="Bob">Bob</option>
-            <option value="Charlie">Charlie</option>
-        </select>
-        <label>Qtd:</label>
-        <input type="number" id="issueAmount" value="5">
-        <button id="issueBtn">Emitir</button>
-    </div>
+                    <div class="mb-6">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Quantidade de Turings (1 ou 2):</label>
+                        <input type="number" id="voteAmount" min="1" max="2" value="1" class="w-full border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-blue-500 outline-none">
+                    </div>
 
-    <!-- Ranking (Atualizado via Eventos) -->
-    <div class="panel">
-        <h3>Ranking (Em tempo real)</h3>
-        <ul id="rankingList">
-            <li>Carregando...</li>
-        </ul>
+                    <button id="voteBtn" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-4 rounded-lg transition-colors disabled:opacity-50">
+                        Confirmar Voto
+                    </button>
+                </div>
+
+                <!-- Painel de Administração -->
+                <div id="adminPanel" class="bg-red-50 border border-red-200 p-6 rounded-xl shadow-sm hidden">
+                    <h3 class="text-xl font-bold text-red-700 border-b border-red-200 pb-2 mb-4">
+                        👑 Painel de Superutilizador
+                    </h3>
+                    
+                    <div class="flex gap-4 mb-6">
+                        <button id="btnVotingOn" class="flex-1 bg-green-100 text-green-700 hover:bg-green-200 font-semibold py-2 rounded-lg transition-colors border border-green-300">
+                            Ativar Votação
+                        </button>
+                        <button id="btnVotingOff" class="flex-1 bg-red-100 text-red-700 hover:bg-red-200 font-semibold py-2 rounded-lg transition-colors border border-red-300">
+                            Pausar Votação
+                        </button>
+                    </div>
+                    
+                    <div class="bg-white p-4 rounded-lg border border-red-100">
+                        <h4 class="font-semibold text-gray-700 mb-3">Emitir Tokens (Mint Manual)</h4>
+                        <div class="flex gap-2 mb-2">
+                            <select id="issueCodinome" class="flex-1 border border-gray-300 rounded-lg p-2 text-sm">
+                                <option value="roberta">roberta</option>
+                                <option value="nome1">nome1</option>
+                                <option value="nome2">nome2</option>
+                                <option value="nome3">nome3</option>
+                                <option value="nome4">nome4</option>
+                                <option value="nome5">nome5</option>
+                            </select>
+                            <input type="number" id="issueAmount" value="5" class="w-20 border border-gray-300 rounded-lg p-2 text-sm text-center">
+                        </div>
+                        <button id="issueBtn" class="w-full bg-red-600 hover:bg-red-700 text-white font-semibold py-2 rounded-lg mt-2 transition-colors disabled:opacity-50">
+                            Emitir Turings
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Coluna Direita: Ranking -->
+            <div>
+                <div class="bg-white p-6 rounded-xl shadow-sm h-full">
+                    <h3 class="text-xl font-bold border-b pb-2 mb-4 flex justify-between items-center">
+                        🏆 Ranking ao Vivo
+                        <span class="text-xs font-normal text-blue-500 bg-blue-50 px-2 py-1 rounded-full animate-pulse">Atualização Auto</span>
+                    </h3>
+                    <ul id="rankingList" class="space-y-3">
+                        <li class="text-gray-500 text-center py-10">Conecte a carteira para carregar o ranking...</li>
+                    </ul>
+                </div>
+            </div>
+
+        </div>
     </div>
 
     <script src="app.js"></script>

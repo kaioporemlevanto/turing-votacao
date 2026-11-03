@@ -1,0 +1,24 @@
+# Dependências
+node_modules/
+
+# Artefactos de compilação e cache do Hardhat
+artifacts/
+cache/
+
+# Variáveis de ambiente e credenciais (chaves privadas, API keys)
+.env
+.env.local
+*.env
+
+# Cobertura de testes e relatórios
+coverage/
+coverage.json
+typechain/
+typechain-types/
+
+# Ficheiros do sistema e editores (IDE)
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+node_modules

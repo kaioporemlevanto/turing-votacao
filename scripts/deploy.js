@@ -1,11 +1,11 @@
 const hre = require("hardhat");
 
 async function main() {
-  const [owner, professora] = await hre.ethers.getSigners(); // Pegando contas do Hardhat
+  const [owner, professora] = await hre.ethers.getSigners(); 
 
   console.log("Deploying contracts with the account:", owner.address);
 
-  // Deploy do contrato passando o endereço da professora
+  // Aqui ocorre a criação da Factory referenciando o nome exato "Turing"
   const Turing = await hre.ethers.getContractFactory("Turing");
   const turing = await Turing.deploy(professora.address);
 
