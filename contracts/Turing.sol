@@ -8,28 +8,37 @@ contract Turing is ERC20, Ownable {
     address public professora;
     bool public voting = true;
 
-    // Chave primária (string) => Endereço 
+    // Chave primária (string) => Endereço
     mapping(string => address) public users;
     // Mapeamento reverso para validação do eleitor no momento do voto
-    mapping(address => string) private addressToCodinome; 
-    
+    mapping(address => string) private addressToCodinome;
+
     // Chave primária (eleitor) => (Chave Secundária (candidato) => Valor Final (bool))
     mapping(string => mapping(string => bool)) public hasVote;
-    
+
     // Contador para bonificação extra de Turings
     mapping(address => uint256) public voteCount;
 
+    event Voted(string indexed voter, string indexed candidate, uint256 amount);
+    event TokenIssued(string indexed codinome, uint256 amount);
+    event VotingStatusChanged(bool status);
+
     modifier onlyAdmin() {
-        require(msg.sender == owner() || msg.sender == professora, "Acesso negado: Apenas owner ou professora.");
+        require(
+            msg.sender == owner() || msg.sender == professora,
+            "Acesso negado: Apenas owner ou professora."
+        );
         _;
     }
 
-    constructor(address _professora) ERC20("Turing", "TRG") Ownable(msg.sender) {
+    constructor(
+        address _professora
+    ) ERC20("Turing", "TRG") Ownable(msg.sender) {
         professora = _professora;
-        
-        // A roberta assume o endereço da professora
+
+        // Assume o endereço da professora
         _addUser("roberta", _professora);
-        
+
         // Alunos comuns
         _addUser("nome1", 0x70997970C51812dc3A010C7d01b50e0d17dc79C8);
         _addUser("nome2", 0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC);
@@ -48,46 +57,70 @@ contract Turing is ERC20, Ownable {
         addressToCodinome[user_addr] = codinome;
     }
 
-    function updateUser(string memory codinome, address user_addr) public onlyAdmin {
+    function updateUser(
+        string memory codinome,
+        address user_addr
+    ) public onlyAdmin {
         require(bytes(codinome).length > 0, "Codinome nao pode ser vazio");
         _addUser(codinome, user_addr);
     }
 
     function votingOn() public onlyAdmin {
         voting = true;
+        emit VotingStatusChanged(true);
     }
 
     function votingOff() public onlyAdmin {
         voting = false;
+        emit VotingStatusChanged(false);
     }
 
-    function issueToken(string memory codinome, uint256 qtde_de_Turings) public onlyAdmin {
+    function issueToken(
+        string memory codinome,
+        uint256 qtde_de_Turings
+    ) public onlyAdmin {
         address target = users[codinome];
         require(target != address(0), "Usuario nao pre-autorizado");
-        
-        _mint(target, qtde_de_Turings); 
+
+        _mint(target, qtde_de_Turings);
+
+        emit TokenIssued(codinome, qtde_de_Turings);
     }
 
     function vote(string memory codinome, uint256 qtde_de_Turings) public {
         require(voting, "Votacao pausada!");
-        
+
         string memory voterCodinome = addressToCodinome[msg.sender];
-        require(bytes(voterCodinome).length > 0, "Apenas usuarios autorizados podem votar.");
-        
+        require(
+            bytes(voterCodinome).length > 0,
+            "Apenas usuarios autorizados podem votar."
+        );
+
         address candidateAddr = users[codinome];
         require(candidateAddr != address(0), "Candidato nao existe.");
-        require(msg.sender != candidateAddr, "Voce nao pode votar em si mesmo.");
-        
-        require(qtde_de_Turings > 0 && qtde_de_Turings <= 2, "Quantidade invalida (deve ser maior que 0 e menor ou igual a 2).");
-        require(!hasVote[voterCodinome][codinome], "Voce ja votou neste codinome.");
+        require(
+            msg.sender != candidateAddr,
+            "Voce nao pode votar em si mesmo."
+        );
+
+        require(
+            qtde_de_Turings > 0 && qtde_de_Turings <= 2,
+            "Quantidade invalida (deve ser maior que 0 e menor ou igual a 2)."
+        );
+        require(
+            !hasVote[voterCodinome][codinome],
+            "Voce ja votou neste codinome."
+        );
 
         hasVote[voterCodinome][codinome] = true;
         voteCount[msg.sender] += 1;
 
         _mint(candidateAddr, qtde_de_Turings);
-        
+
         if (voteCount[msg.sender] % 10 == 0) {
             _mint(msg.sender, 1);
         }
+
+        emit Voted(voterCodinome, codinome, qtde_de_Turings);
     }
 }

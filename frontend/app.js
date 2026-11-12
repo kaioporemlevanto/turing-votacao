@@ -150,6 +150,12 @@ function setupEventListeners() {
         Swal.fire({ toast: true, position: 'bottom-end', icon: 'success', title: `${amount} TRG emitidos para ${codinome}`, showConfirmButton: false, timer: 4000 });
         updateRanking();
     });
+
+    contract.on("VotingStatusChanged", (status) => {
+        const mensagem = status ? "Votação foi ATIVADA!" : "Votação foi PAUSADA!";
+        const icone = status ? "success" : "warning";
+        Swal.fire({ toast: true, position: 'top-end', icon: icone, title: mensagem, showConfirmButton: false, timer: 4000 });
+    });
 }
 
 // Funções de clique dos botões com tratamento de estado
